@@ -1,17 +1,41 @@
-import cv2
-import matplotlib.pyplot as pt
 import numpy as np
-from keras import models
-from PIL import Image
-
-model = models.load_model('mpd.h5')
+import cv2
+from keras.models import load_model
 video = cv2.VideoCapture(1)
-while True:
-    _,Image=video.read()
-    imagen=cv2.resize(Image,(256,256),interpolation=cv2.INTER_CUBIC)
-    pt.imshow(imagen)
-    pt.show()
-    print(imagen)
+modelo=load_model('mpd.h5')
+
+def leer_imagen():
+    _,imagen=video.read()
+    cv2.imshow('imagen',imagen)
+    return cv2.resize(imagen,(128,128),interpolation=cv2.INTER_CUBIC)
+def prep_imagen():
+    data=np.ndarray((1,3,128,128),dtype=np.uint8)
+    data[0]=leer_imagen().T    
+    return np.expand_dims(np.array(data[0]),axis=0)
+def tipo_senal(array):
+    if array.max()>0.90:
+        index = np.where(array==array.max())
+        print array
+        if index[1]==0:
+            return "LIMITE"
+        elif index[1]==1:
+            return "PARADERO"
+        elif index[1]==2:
+            return "PARE"
+        elif index[1]==3:
+            return "PROHIBIDO"
+    else:
+        return "NADA"
+while(True):
+    frame=leer_imagen()
+    frame=prep_imagen()
+    predicciones=modelo.predict(frame)
+    print(tipo_senal(predicciones))
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+video.release()
+cv2.destroyAllWindows()
 
 '''
 def leer_imagen():

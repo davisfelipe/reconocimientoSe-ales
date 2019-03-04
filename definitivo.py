@@ -87,7 +87,7 @@ early_stopping = EarlyStopping(monitor='val_loss', patience=3, verbose=1, mode='
 def entrenar():
     history=LossHistory()
     modelo.fit(train, categorias, batch_size=batch_size, epochs=nb_epoch,
-              validation_split=0.10, shuffle=True,callbacks=[history])
+              validation_split=0.30, shuffle=True,callbacks=[history])
     predicciones=modelo.predict(test)
     return predicciones
 
@@ -100,6 +100,3 @@ for i in range(0,12):
     plt.show()
     
 modelo.save('mprediction.h5')
-#for i in predicciones:
-#    index=np.where(i==i.min())
-#    print index
